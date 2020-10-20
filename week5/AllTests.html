@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>All Tests</title>
+</head>
+<body>
+
+<script>
+    const sources = ['function','lambda','snake'];
+
+    sources.forEach( source => {
+        document.writeln(`<script src="${source}/${source}.js"></`     + 'script>');
+        document.writeln(`<script src="${source}/${source}Test.js"></` + 'script>');
+    });
+</script>
+
+
+</body>
+</html>
