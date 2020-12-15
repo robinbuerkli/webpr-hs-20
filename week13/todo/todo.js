@@ -1,9 +1,12 @@
-// requires ../observable/observable.js
+import { Observable, ObservableList }   from "../observable/observable.js";
+import { Scheduler }                    from "../dataflow/dataflow.js";
+
+export { TodoController, TodoItemsView, TodoTotalView, TodoOpenView}
 
 const TodoController = () => {
 
     const Todo = () => {                                // facade
-        const textAttr = Observable("...");            // we current don't expose it as we don't use it elsewhere
+        const textAttr = Observable("text");            // we current don't expose it as we don't use it elsewhere
         const doneAttr = Observable(false);
         return {
             getDone:       doneAttr.getValue,
@@ -16,29 +19,33 @@ const TodoController = () => {
     };
 
     const todoModel = ObservableList([]); // observable array of Todos, this state is private
+    const scheduler = Scheduler();
+    // todo: we need a scheduler
 
     const addTodo = () => {
         const newTodo = Todo();
         todoModel.add(newTodo);
         return newTodo;
     };
-    const scheduler = Scheduler();
-    const addFortuneTodo = button => {
-        button.disabled = true;
+
+    const addFortuneTodo = () => {
+
         const newTodo = Todo();
+
         todoModel.add(newTodo);
-        newTodo.setText("...");
+        newTodo.setText('...');
 
-       scheduler.add( ok => {
-            fortuneService( text => {
-                newTodo.setText(text);
-                button.disabled = false;
-                ok();
-            });
-       });
+        scheduler.add( ok =>
+           fortuneService( text => {        // todo: schedule the fortune service and proceed when done
+                   newTodo.setText(text);
+                   ok();
+               }
+           )
+
+        );
 
 
-        return newTodo;
+
     };
 
     return {
@@ -64,7 +71,7 @@ const TodoItemsView = (todoController, rootElement) => {
             const template = document.createElement('DIV'); // only for parsing
             template.innerHTML = `
                 <button class="delete">&times;</button>
-                <input type="text" size="36">
+                <input type="text" size="42">
                 <input type="checkbox">            
             `;
             return template.children;
@@ -82,7 +89,7 @@ const TodoItemsView = (todoController, rootElement) => {
             removeMe();
         } );
 
-        todo.onTextChanged( _ => inputElement.value = todo.getText() );
+        todo.onTextChanged(() => inputElement.value = todo.getText());
 
         rootElement.appendChild(deleteButton);
         rootElement.appendChild(inputElement);
@@ -120,5 +127,3 @@ const TodoOpenView = (todoController, numberOfOpenTasksElement) => {
     });
     todoController.onTodoRemove(render);
 };
-
-
